@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.notificationservice.exception.ConflictException;
 import org.example.notificationservice.model.MailSender;
 import org.example.notificationservice.payload.MailPayload;
 import org.example.notificationservice.payload.TransactionPayload;
@@ -44,6 +45,7 @@ public class MailService {
                 message.addAttachment(file.getName(), file);
             } else {
                 log.error("File not created");
+                throw new ConflictException("File not created");
             }
 
             mail.setEmail(payload.getTo());
@@ -55,7 +57,7 @@ public class MailService {
         } catch (MessagingException e) {
             mail.setMailSendStatus(false);
             mailRepository.save(mail);
-            throw new RuntimeException(e);
+            throw new ConflictException("Email send pdf. Error");
         }
     }
 
@@ -79,7 +81,7 @@ public class MailService {
             javaMailSender.send(mimeMessage);
 
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new ConflictException("Email send log. Error");
         }
     }
 }
